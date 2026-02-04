@@ -1,0 +1,298 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 col-md-8">
+        <span class="badge-soft">Novo treino</span>
+        <h1 class="mt-3 mb-2">Registrar sessão de treino</h1>
+        <p class="text-secondary mb-0">
+            Preencha as informações abaixo para salvar um novo treino no banco de dados.
+        </p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="row mb-3">
+      <div class="col-12">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'info' if category == 'info' else category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <small class="text-secondary text-uppercase">Dados do treino</small>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('new_training') }}" novalidate>
+                    <!-- Linha 1: data, tipo, duração -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-4">
+                            <label for="session_date" class="form-label">Data</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="session_date"
+                                name="session_date"
+                                required
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="activity_id" class="form-label">Tipo de atividade</label>
+                            <select class="form-select" id="activity_id" name="activity_id" required>
+                                <option value="" selected disabled>Selecione...</option>
+                                <!-- valores de exemplo; ideal futuramente carregar do banco -->
+                                <option value="1">Corrida</option>
+                                <option value="2">Caminhada</option>
+                                <option value="3">Musculação</option>
+                                <option value="4">Trilha de moto</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="duration_hhmm" class="form-label">Duração (HH:MM)</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="duration_hhmm"
+                                name="duration_hhmm"
+                                placeholder="00:45"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Linha 2: qualidade do sono, esforço, sensação -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-4">
+                            <label for="sleep_quality_score" class="form-label">
+                                Qualidade do sono (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="sleep_quality_score"
+                                name="sleep_quality_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="effort_score" class="form-label">
+                                Esforço percebido (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="effort_score"
+                                name="effort_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="post_workout_score" class="form-label">
+                                Como se sente após (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="post_workout_score"
+                                name="post_workout_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Linha 3: distância, pace (para corrida/caminhada/trilha) -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label for="distance_km" class="form-label">
+                                Distância (km)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                class="form-control"
+                                id="distance_km"
+                                name="distance_km"
+                            >
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="avg_pace_min_per_km" class="form-label">
+                                Pace médio (min/km)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                class="form-control"
+                                id="avg_pace_min_per_km"
+                                name="avg_pace_min_per_km"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Linha 4: trilha de moto (scores específicos) -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Trilha de moto (se aplicável)</label>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="trail_fatigue_score" class="form-label">
+                                Cansaço (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="trail_fatigue_score"
+                                name="trail_fatigue_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="trail_safety_score" class="form-label">
+                                Segurança / confiança (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="trail_safety_score"
+                                name="trail_safety_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="trail_overall_score" class="form-label">
+                                Experiência geral (1–5)
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="trail_overall_score"
+                                name="trail_overall_score"
+                                min="1" max="5"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Linha 5: musculação -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Musculação (se aplicável)</label>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="gym_plan_type" class="form-label">
+                                Tipo de treino (A/B/C)
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="gym_plan_type"
+                                name="gym_plan_type"
+                                placeholder="A, B, C..."
+                            >
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="gym_total_weight_kg" class="form-label">
+                                Peso total (kg)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                class="form-control"
+                                id="gym_total_weight_kg"
+                                name="gym_total_weight_kg"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Linha 6: contexto extra -->
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label for="meal_before" class="form-label">
+                                Refeição antes do treino
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="meal_before"
+                                name="meal_before"
+                                placeholder="Jejum, leve, pesada..."
+                            >
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="temperature_celsius" class="form-label">
+                                Temperatura (°C)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                class="form-control"
+                                id="temperature_celsius"
+                                name="temperature_celsius"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label for="notes" class="form-label">Observações</label>
+                            <textarea
+                                class="form-control"
+                                id="notes"
+                                name="notes"
+                                rows="3"
+                                placeholder="Qualquer detalhe relevante sobre o treino..."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            Voltar para dashboard
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>
+                            Salvar treino
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna lateral informativa -->
+    <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header">
+                <small class="text-secondary text-uppercase">Dicas de preenchimento</small>
+            </div>
+            <div class="card-body small text-secondary">
+                <p class="mb-2">
+                    <strong>Escalas de 1 a 5</strong>:
+                </p>
+                <ul>
+                    <li>1 = muito baixo / muito ruim</li>
+                    <li>3 = moderado</li>
+                    <li>5 = muito alto / excelente</li>
+                </ul>
+                <p class="mb-2">
+                    <strong>Duração (HH:MM)</strong>:
+                    use formato como <code>00:45</code> ou <code>01:20</code>.
+                </p>
+                <p class="mb-0">
+                    No futuro, estes dados serão usados para gerar estatísticas e
+                    treinar modelos de Machine Learning sobre o seu desempenho.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
